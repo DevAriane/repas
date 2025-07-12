@@ -1,57 +1,45 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-
+import { useRouter } from 'expo-router';
+import { Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { array } from '../database';
 export default function HomeScreen() {
+  const router=useRouter();
+const direction=(x)=>{
+  router.push({pathname:'/details',params:{item:JSON.stringify(x)}})
+}
+  
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <>
+    <SafeAreaView>
+      <StatusBar backgroundColor="orange"/>
+    <View style={styles.header}>
+        <Text style={styles.accueil}>Accueil</Text>
+      </View>
+      <View style={styles.recette}>
+        
+        <ScrollView showsVerticalScrollIndicator={false}  >
+        {array.map((x)=>(<>
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+         <TouchableOpacity onPress={()=>direction(x)} style={styles.plat}>
+          <Image
+          source={x.image}
+          resizeMode='cover'
+          style={styles.image}
+          />
+          <View >
+            <Text style={{color:'white',fontWeight:"bold",fontSize:16}}  numberOfLines={2}
+      ellipsizeMode="tail">{x.titre}</Text>
+             <Text style={{color:'white',fontWeight:"bold",fontSize:16}}>{x.temps}</Text>
+              <Text style={{color:'white',fontWeight:"bold",fontSize:16}}>{x.categorie}</Text> 
+          </View>
+          
+         </TouchableOpacity>
+         </ScrollView>
+        </>))}
+        </ScrollView>
+      </View>
+    </SafeAreaView>
+    </>
   );
 }
 
@@ -71,5 +59,48 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+  menu:{
+    display:"flex",
+    flexDirection:"row",
+    justifyContent:"space-around",
+    alignItems:"center",
+  },
+  header:{
+  top:0,
+  width:"100%",
+  height:"10%",
+  display:"flex",
+  alignItems:"center",
+  justifyContent:'center',
+     
+backgroundColor:"orange",
+
+  },
+  accueil:{
+    color:"white",
+fontSize:20,
+fontWeight:"bold"
+  },
+  recette:{
+marginHorizontal:10,
+marginTop:10,
+  },
+  image:{
+    width:50,
+    height:50,
+    borderRadius:7,
+    borderColor:"transparent",
+  },
+  plat:{
+    display:'flex',
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'space-around',
+    backgroundColor:'orange',
+    margin:5,
+    width:340,
+    height:100,
+    borderRadius:10,
   },
 });
