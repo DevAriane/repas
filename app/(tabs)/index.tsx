@@ -1,13 +1,32 @@
 
+import Fontisto from '@expo/vector-icons/Fontisto';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View,Alert } from 'react-native';
 import { array } from '../database';
 export default function HomeScreen() {
   const router=useRouter();
 const direction=(x)=>{
   router.push({pathname:'/details',params:{item:JSON.stringify(x)}})
 }
-  
+const [tab,setTab]=useState<any>([]);
+const addItem=(x)=>{
+setTab((prevItem)=>[...prevItem,x]);
+Alert.alert("vous avez mis le menu en favoris");
+}
+const storedata=async()=>{
+    console.log("storedata()");
+    try{
+await AsyncStorage.setItem('tab',JSON.stringify(tab));
+    }catch(e){
+        console.log("error");
+    }
+}
+ useEffect(()=>{storedata()},[]);
+  useEffect(()=>{storedata()},[tab]);
+  console.log("tab:",tab.length);
+
   return (
     <>
     <SafeAreaView>
@@ -18,22 +37,25 @@ const direction=(x)=>{
       <View style={styles.recette}>
         
         <ScrollView showsVerticalScrollIndicator={false}  >
-        {array.map((x)=>(<>
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-         <TouchableOpacity onPress={()=>direction(x)} style={styles.plat}>
+        {array.map((x,i)=>(<>
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} key={i}>
+          <View  style={styles.plat}>
+         <TouchableOpacity onPress={()=>direction(x)}>
           <Image
           source={x.image}
           resizeMode='cover'
           style={styles.image}
           />
+           </TouchableOpacity>
           <View >
             <Text style={{color:'white',fontWeight:"bold",fontSize:16}}  numberOfLines={2}
       ellipsizeMode="tail">{x.titre}</Text>
              <Text style={{color:'white',fontWeight:"bold",fontSize:16}}>{x.temps}</Text>
               <Text style={{color:'white',fontWeight:"bold",fontSize:16}}>{x.categorie}</Text> 
           </View>
+          <View><TouchableOpacity onPress={()=>addItem(x)}><Fontisto name="favorite" size={25 } color="white" /></TouchableOpacity> </View>
           
-         </TouchableOpacity>
+        </View>
          </ScrollView>
         </>))}
         </ScrollView>
