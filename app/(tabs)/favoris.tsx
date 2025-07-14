@@ -1,29 +1,33 @@
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import { getData } from '../getData';
+import { removeData } from '../removeData';
 function Favoris() {
   const [items, setItems] = useState([]);
-
-  const getData = async () => {
-    console.log("getData()");
-    try {
-      const tab = await AsyncStorage.getItem('tab');
-      console.log("tabFavoris:", tab);
-      if (tab !== null) {
-        setItems(JSON.parse(tab));
-        return tab;
-      }
-    } catch (e) {
-      console.log("Erreur lors du chargement:", e);
-    }
-  };
+const router=useRouter();
+const direction=(x)=>{
+   router.push({pathname:'/details',params:{item:JSON.stringify(x)}});
+}
 
   useEffect(() => {
-    getData();
-  }, [items]);
+    const fetchData=async()=>{
+      const data=await getData("tab");
+      console.log("dataFavoris:",data);
+      setItems(data);
+    }
+    fetchData();
+  }, []);
+ 
   console.log("items:",items);
+
+  const remove=(x)=>{
+removeData(x);
+const newItem=items.filter((e)=>{return e !== x} );
+setItems(newItem);
+  }
 
   return (
     <>
@@ -35,7 +39,7 @@ function Favoris() {
               {items.map((x,i)=>(<>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} key={i}>
                 <View  style={styles.plat}>
-               <TouchableOpacity >
+               <TouchableOpacity onPress={()=>direction(x)}>
                 <Image
                 source={x.image}
                 resizeMode='cover'
@@ -48,6 +52,11 @@ function Favoris() {
                    <Text style={{color:'white',fontWeight:"bold",fontSize:16}}>{x.temps}</Text>
                     <Text style={{color:'white',fontWeight:"bold",fontSize:16}}>{x.categorie}</Text> 
                 </View> 
+                <View>
+                   <TouchableOpacity onPress={()=>remove(x)}>
+                  <MaterialIcons name="bookmark-remove" size={30} color="white" />
+                  </TouchableOpacity>
+                </View>
               </View>
                </ScrollView>
               </>))}

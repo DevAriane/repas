@@ -1,12 +1,16 @@
 
 import Fontisto from '@expo/vector-icons/Fontisto';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View,Alert } from 'react-native';
+import { Alert, Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { array } from '../database';
+import { saveData } from '../saveData';
+import Filter from '../filter';
+import EvilIcons from '@expo/vector-icons/EvilIcons';
 export default function HomeScreen() {
   const router=useRouter();
+  const [name,setName]=useState('');
+  const [val,setVal]=useState('false');
 const direction=(x)=>{
   router.push({pathname:'/details',params:{item:JSON.stringify(x)}})
 }
@@ -15,17 +19,18 @@ const addItem=(x)=>{
 setTab((prevItem)=>[...prevItem,x]);
 Alert.alert("vous avez mis le menu en favoris");
 }
-const storedata=async()=>{
-    console.log("storedata()");
-    try{
-await AsyncStorage.setItem('tab',JSON.stringify(tab));
-    }catch(e){
-        console.log("error");
-    }
-}
- useEffect(()=>{storedata()},[]);
-  useEffect(()=>{storedata()},[tab]);
+
+ useEffect(()=>{saveData("tab",tab)},[tab]);
+  
   console.log("tab:",tab.length);
+
+  
+    const refresh=(name)=>{
+    const newArray=  array.filter((e)=> e.titre == name);
+    console.log("newArray:",newArray);
+    return <Filter a={newArray}/>
+ }
+  
 
   return (
     <>
@@ -35,8 +40,20 @@ await AsyncStorage.setItem('tab',JSON.stringify(tab));
         <Text style={styles.accueil}>Accueil</Text>
       </View>
       <View style={styles.recette}>
-        
-        <ScrollView showsVerticalScrollIndicator={false}  >
+        <View>
+          <Text style={{fontSize:18,fontStyle:'italic',fontWeight:'condensed',margin:4}}>Hello les ami (e) s !!!</Text>
+          <View style={styles.input}>
+          <TextInput
+          placeholder='rechercher'
+          placeholderTextColor='gray'
+          
+          value={name}
+          onChangeText={setName}
+          />
+          <TouchableOpacity onPress={()=>setVal("true")}><EvilIcons name="search" size={30} color="black" /></TouchableOpacity>
+          </View>
+        </View>
+        {val=== "true" ? refresh(name) : <ScrollView showsVerticalScrollIndicator={false}  >
         {array.map((x,i)=>(<>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} key={i}>
           <View  style={styles.plat}>
@@ -58,7 +75,8 @@ await AsyncStorage.setItem('tab',JSON.stringify(tab));
         </View>
          </ScrollView>
         </>))}
-        </ScrollView>
+        </ScrollView> }
+       
       </View>
     </SafeAreaView>
     </>
@@ -125,4 +143,18 @@ marginTop:10,
     height:100,
     borderRadius:10,
   },
+  input:{
+    borderColor:'ligth-gray',
+    height:40,
+    width:"98%",
+    borderRadius:10,
+  backgroundColor:"white",
+  margin:4,
+  display:'flex',
+  alignContent:'center',
+  justifyContent:'space-evenly',
+  flexDirection:"row",
+  alignItems:'center',
+
+  }
 });
